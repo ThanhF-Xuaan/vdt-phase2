@@ -1,0 +1,34 @@
+package com.demo.vdt.modules.authorization.repository;
+
+import com.demo.vdt.modules.authorization.entity.Permission;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface PermissionRepository extends JpaRepository<Permission, Integer> {
+    @Query("SELECT COUNT(p) > 0 " +
+            "FROM Permission p " +
+            "JOIN RoleGroupPermission rgp " +
+            "  ON rgp.permission.id = p.id " +
+            "JOIN UserRoleGroup urg " +
+            "  ON urg.roleGroup.id = rgp.roleGroup.id " +
+            "WHERE urg.user.username = :username " +
+            "  AND p.code = :permissionCode")
+    boolean hasPermission(
+            @Param("username") String username,
+            @Param("permissionCode") String permissionCode
+    );
+
+    @Query("SELECT p.code " +
+            "FROM Permission p " +
+            "JOIN RoleGroupPermission rgp " +
+            "ON rgp.permission.id = p.id " +
+            "JOIN UserRoleGroup urg " +
+            "ON urg.roleGroup.id = rgp.roleGroup.id " +
+            "WHERE urg.user.keycloakId = :keycloakId")
+    List<String> findPermissionCodesByKeycloakId(@Param("keycloakId") String keycloakId);
+}
