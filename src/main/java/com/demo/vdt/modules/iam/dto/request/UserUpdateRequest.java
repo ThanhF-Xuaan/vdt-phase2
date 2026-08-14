@@ -1,9 +1,7 @@
-package com.demo.vdt.modules.iam.dto.response;
+package com.demo.vdt.modules.iam.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -11,9 +9,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserInfoResponse {
-    String username;
+public class UserUpdateRequest {
+    String password;
     String firstName;
     String lastName;
-    LocalDate dob;
+    String dob;
 }

@@ -31,12 +31,12 @@ public class AuthorizationServiceImpl implements  AuthorizationService{
     }
 
     @Override
-    public List<String> getPermissions(String keycloakId) {
-        return permissionRepository.findPermissionCodesByKeycloakId(keycloakId);
+    public List<String> getPermissions(String username) {
+        return permissionRepository.findPermissionCodesByUsername(username);
     }
 
     @Override
-    public List<String> getRoleGroups(String keycloakId) {
-        return roleGroupRepository.findRoleGroupCodesByKeycloakId(keycloakId);
+    public List<String> getRoleGroups(String username) {
+        return roleGroupRepository.findRoleGroupCodesByUsername(username);
     }
 }

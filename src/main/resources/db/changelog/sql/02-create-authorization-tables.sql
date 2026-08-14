@@ -32,7 +32,7 @@ CREATE TABLE role_groups (
 
 --changeset admin:4
 CREATE TABLE user_role_groups (
-     user_id VARCHAR(255) NOT NULL,
+     user_id BIGINT NOT NULL,
      role_group_id BIGINT NOT NULL,
 
      CONSTRAINT pk_user_role_groups
@@ -40,7 +40,7 @@ CREATE TABLE user_role_groups (
 
      CONSTRAINT fk_user_role_groups_user
         FOREIGN KEY (user_id)
-        REFERENCES app_users (keycloak_id),
+        REFERENCES app_users (user_id),
 
      CONSTRAINT fk_user_role_groups_group
         FOREIGN KEY (role_group_id)

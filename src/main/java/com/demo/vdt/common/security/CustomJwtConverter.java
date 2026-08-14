@@ -43,10 +43,8 @@ public class CustomJwtConverter implements Converter<Jwt, AbstractAuthentication
             authorities.addAll(mappedRoles);
         }
 
-        String keycloakId = jwt.getSubject();
-
-        List<String> roleGroups = authorizationService.getRoleGroups(keycloakId);
-        List<String> permissions = authorizationService.getPermissions(keycloakId);
+        List<String> roleGroups = authorizationService.getRoleGroups(username);
+        List<String> permissions = authorizationService.getPermissions(username);
 
         List<GrantedAuthority> dbRoles = Stream.concat(
                         roleGroups.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)),

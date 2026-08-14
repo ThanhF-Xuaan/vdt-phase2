@@ -39,7 +39,9 @@ public class SecurityConfig {
                         "/public/**",
                         "/error",
                         "/css/**",
-                        "/js/**"
+                        "/js/**",
+                        "/api/v1/users",
+                        "/api/v1/users/**"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

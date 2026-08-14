@@ -1,14 +1,10 @@
 package com.demo.vdt.modules.iam.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "app_users")
@@ -16,15 +12,22 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AppUser {
-
     @Id
-    @Column(name = "keycloak_id", nullable = false, length = 255)
-    private String keycloakId;
+    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long userId;
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
-    private String username;
+    String username;
 
-    @Column(name = "full_name", length = 255)
-    private String fullName;
+    @Column(name = "first_name", length = 255)
+    String firstName;
+
+    @Column(name = "last_name", length = 255)
+    String lastName;
+
+    @Column(name = "dob")
+    LocalDate dob;
 }

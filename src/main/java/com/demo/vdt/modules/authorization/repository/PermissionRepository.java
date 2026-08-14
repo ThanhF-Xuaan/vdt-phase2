@@ -29,6 +29,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Integer>
             "ON rgp.permission.id = p.id " +
             "JOIN UserRoleGroup urg " +
             "ON urg.roleGroup.id = rgp.roleGroup.id " +
-            "WHERE urg.user.keycloakId = :keycloakId")
-    List<String> findPermissionCodesByKeycloakId(@Param("keycloakId") String keycloakId);
+            "WHERE urg.user.username = :username")
+    List<String> findPermissionCodesByUsername(@Param("username") String username);
 }

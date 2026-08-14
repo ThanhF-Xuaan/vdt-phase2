@@ -15,6 +15,6 @@ public interface RoleGroupRepository extends JpaRepository<RoleGroup, Integer> {
 
     @Query("SELECT urg.roleGroup.code " +
             "FROM UserRoleGroup urg " +
-            "WHERE urg.user.keycloakId = :keycloakId")
-    List<String> findRoleGroupCodesByKeycloakId(@Param("keycloakId") String keycloakId);
+            "WHERE urg.user.username = :username")
+    List<String> findRoleGroupCodesByUsername(@Param("username") String username);
 }
