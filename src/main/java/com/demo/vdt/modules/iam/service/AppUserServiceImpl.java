@@ -12,12 +12,14 @@ import com.demo.vdt.modules.iam.repository.AppUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class AppUserServiceImpl implements AppUserService {
 
     AppUserRepository appUserRepository;
@@ -47,21 +50,31 @@ public class AppUserServiceImpl implements AppUserService {
         credentialRepresentation.setValue(userCreationRequest.getPassword());
         userRepresentation.setCredentials(Collections.singletonList(credentialRepresentation));
 
-        Response response = keycloak.realm("demo-realm").users().create(userRepresentation);
-
-        if (response.getStatus() == 409) {
-            throw new AppException(ErrorCode.USER_EXISTED);
-        }
-
-        if (response.getStatus() != 201) {
+        try(Response response = keycloak.realm("demo-realm").users().create(userRepresentation)){
+            if(response.getStatus() == 409){
+                throw new AppException(ErrorCode.USER_EXISTED);
+            }
+            if(response.getStatus() != 201){
+                log.error("Failed to create user in Keycloak. Status: {}", response.getStatus());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            }
+        }catch (WebApplicationException e){
+            log.error("Error while creating Keycloak user", e);
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
 
         AppUser appUser = userMapper.toAppUser(userCreationRequest);
+        try{
+            appUserRepository.saveAndFlush(appUser);
 
-        appUserRepository.save(appUser);
+            return userMapper.toUserInfoResponse(appUser);
+        }catch (Exception e){
+            log.error("Fail when saving DB MariaDB. Active Compensating Transaction delete user Keycloak...", e);
 
-        return userMapper.toUserInfoResponse(appUser);
+            rollbackKeycloakUser(userCreationRequest.getUsername());
+
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
     }
 
     @Override
@@ -128,5 +141,18 @@ public class AppUserServiceImpl implements AppUserService {
         keycloak.realm("demo-realm").users().get(keycloakId).remove();
 
         appUserRepository.delete(appUser);
+    }
+
+    private void rollbackKeycloakUser(String username){
+        try{
+            List<UserRepresentation> users = keycloak.realm("demo-realm").users().search(username);
+            if(!users.isEmpty()){
+                String keycloakId = users.get(0).getId();
+                keycloak.realm("demo-realm").users().get(keycloakId).remove();
+                log.info("Rollback successfully: user {} was deleted on Keycloak", username);
+            }
+        }catch (Exception ex){
+            log.error("CRITICAL: Can't rollback user {} on Keycloak", username, ex);
+        }
     }
 }

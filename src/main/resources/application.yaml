@@ -16,3 +16,7 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/demo-realm
           jwk-set-uri: http://localhost:8080/realms/demo-realm/protocol/openid-connect/certs
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false

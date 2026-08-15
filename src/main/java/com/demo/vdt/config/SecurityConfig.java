@@ -23,6 +23,16 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     final CustomJwtConverter customJwtConverter;
+    final String[] PUBLIC_ENDPOINTS = {"/",
+            "/public/**",
+            "/error",
+            "/css/**",
+            "/js/**",
+            "/api/v1/users",
+            "/api/v1/users/**",
+            "/api/v1/bookings",
+            "/api/v1/bookings/**"
+    };
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     String jwkSetUri;
@@ -35,13 +45,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers(
-                        "/",
-                        "/public/**",
-                        "/error",
-                        "/css/**",
-                        "/js/**",
-                        "/api/v1/users",
-                        "/api/v1/users/**"
+                        PUBLIC_ENDPOINTS
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
