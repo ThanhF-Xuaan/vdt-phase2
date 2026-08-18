@@ -3,6 +3,11 @@ package com.demo.vdt.modules.iam.service;
 import com.demo.vdt.common.exception.AppException;
 import com.demo.vdt.common.exception.ErrorCode;
 import com.demo.vdt.common.utils.DateUtil;
+import com.demo.vdt.modules.authorization.entity.RoleGroup;
+import com.demo.vdt.modules.authorization.entity.UserRoleGroup;
+import com.demo.vdt.modules.authorization.entity.UserRoleGroupId;
+import com.demo.vdt.modules.authorization.repository.RoleGroupRepository;
+import com.demo.vdt.modules.authorization.repository.UserRoleGroupRepository;
 import com.demo.vdt.modules.iam.dto.request.UserCreationRequest;
 import com.demo.vdt.modules.iam.dto.request.UserUpdateRequest;
 import com.demo.vdt.modules.iam.dto.response.UserInfoResponse;
@@ -32,6 +37,8 @@ import java.util.stream.Collectors;
 public class AppUserServiceImpl implements AppUserService {
 
     AppUserRepository appUserRepository;
+    RoleGroupRepository roleGroupRepository;
+    UserRoleGroupRepository userRoleGroupRepository;
     Keycloak keycloak;
     UserMapper userMapper;
 
@@ -65,9 +72,15 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser appUser = userMapper.toAppUser(userCreationRequest);
         try{
-            appUserRepository.saveAndFlush(appUser);
+            appUser = appUserRepository.saveAndFlush(appUser);
 
-            return userMapper.toUserInfoResponse(appUser);
+            // Xử lý gán Nhóm quyền (RoleGroups)
+            assignRoleGroupsToUser(appUser.getUserId(), userCreationRequest.getRoleGroupCodes());
+
+            UserInfoResponse response = userMapper.toUserInfoResponse(appUser);
+            response.setRoleGroup(userCreationRequest.getRoleGroupCodes());
+
+            return response;
         }catch (Exception e){
             log.error("Fail when saving DB MariaDB. Active Compensating Transaction delete user Keycloak...", e);
 
@@ -123,7 +136,13 @@ public class AppUserServiceImpl implements AppUserService {
 
         appUserRepository.save(appUser);
 
-        return userMapper.toUserInfoResponse(appUser);
+        userRoleGroupRepository.deleteAllByUserId(userId);
+        assignRoleGroupsToUser(userId, userUpdateRequest.getRoleGroupCodes());
+
+        UserInfoResponse response = userMapper.toUserInfoResponse(appUser);
+        response.setRoleGroup(userUpdateRequest.getRoleGroupCodes());
+
+        return response;
     }
 
     @Override
@@ -154,5 +173,31 @@ public class AppUserServiceImpl implements AppUserService {
         }catch (Exception ex){
             log.error("CRITICAL: Can't rollback user {} on Keycloak", username, ex);
         }
+    }
+
+    private void assignRoleGroupsToUser(Long userId, List<String> roleGroupCodes) {
+        if (roleGroupCodes == null || roleGroupCodes.isEmpty()) return;
+
+        // 1. Tìm danh sách RoleGroup thực tế từ Database
+        List<RoleGroup> validRoleGroups = roleGroupRepository.findAllByCodeIn(roleGroupCodes);
+
+        // 2. Tạo Proxy User (Chỉ tạo Object giả chứa ID để thỏa mãn Hibernate, không query DB)
+        AppUser proxyUser = appUserRepository.getOne(userId);
+
+        // 3. Map dữ liệu
+        List<UserRoleGroup> mappings = validRoleGroups.stream().map(roleGroup -> {
+            UserRoleGroup urg = new UserRoleGroup();
+
+            // Gán Khóa chính phức hợp
+            urg.setId(new UserRoleGroupId(userId, roleGroup.getId()));
+
+            urg.setUser(proxyUser);
+            urg.setRoleGroup(roleGroup);
+
+            return urg;
+        }).collect(Collectors.toList());
+
+        // 4. Lưu hàng loạt
+        userRoleGroupRepository.saveAll(mappings);
     }
 }

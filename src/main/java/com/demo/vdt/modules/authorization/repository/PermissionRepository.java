@@ -31,4 +31,15 @@ public interface PermissionRepository extends JpaRepository<Permission, Integer>
             "ON urg.roleGroup.id = rgp.roleGroup.id " +
             "WHERE urg.user.username = :username")
     List<String> findPermissionCodesByUsername(@Param("username") String username);
+
+
+    List<Permission> findAllByCodeIn(List<String> codes);
+
+
+    @Query("SELECT p FROM Permission p " +
+            "JOIN RoleGroupPermission rgp ON p.id = rgp.permission.id " +
+            "WHERE rgp.roleGroup.id = :roleGroupId")
+    List<Permission> findPermissionsByRoleGroupId(@Param("roleGroupId") Integer roleGroupId);
+
+    boolean existsByCode(String code);
 }

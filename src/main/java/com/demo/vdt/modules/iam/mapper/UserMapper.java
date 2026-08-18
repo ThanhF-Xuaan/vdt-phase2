@@ -13,7 +13,6 @@ import org.mapstruct.*;
 )
 public interface UserMapper {
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "dob", expression = "java(DateUtil.parseToLocalDate(request.getDob()))")
     AppUser toAppUser(UserCreationRequest request);
 
     UserInfoResponse toUserInfoResponse(AppUser appUser);
@@ -21,6 +20,5 @@ public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "username", ignore = true)
-    @Mapping(target = "dob", expression = "java(request.getDob() != null ? DateUtil.parseToLocalDate(request.getDob()) : appUser.getDob())")
     void updateAppUserFromRequest(UserUpdateRequest request, @MappingTarget AppUser appUser);
 }

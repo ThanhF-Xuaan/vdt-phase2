@@ -17,4 +17,8 @@ public interface RoleGroupRepository extends JpaRepository<RoleGroup, Integer> {
             "FROM UserRoleGroup urg " +
             "WHERE urg.user.username = :username")
     List<String> findRoleGroupCodesByUsername(@Param("username") String username);
+
+    List<RoleGroup> findAllByCodeIn(List<String> codes);
+
+    boolean existsByCode(String code);
 }

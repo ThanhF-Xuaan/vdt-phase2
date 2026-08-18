@@ -6,9 +6,12 @@ import com.demo.vdt.modules.iam.dto.request.UserUpdateRequest;
 import com.demo.vdt.modules.iam.dto.response.UserInfoResponse;
 import com.demo.vdt.modules.iam.entity.AppUser;
 import com.demo.vdt.modules.iam.service.AppUserService;
+import com.demo.vdt.modules.iam.service.UserSyncService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     AppUserService appUserService;
+    UserSyncService userSyncService;
 
     @GetMapping("/me")
     public ApiResponse<Object> me(Authentication authentication){
@@ -66,5 +70,12 @@ public class UserController {
         return ApiResponse.<String>builder()
                 .result("Delete user successfully!")
                 .build();
+    }
+
+    @PostMapping("/sync-keycloak")
+//    @PreAuthorize("hasAuthority('ROLE_GROUP_ADMIN')")
+    public ResponseEntity<String> triggerSyncManual() {
+        userSyncService.syncUsersFromKeycloak();
+        return ResponseEntity.ok("Đã đồng bộ thành công dữ liệu từ Keycloak!");
     }
 }

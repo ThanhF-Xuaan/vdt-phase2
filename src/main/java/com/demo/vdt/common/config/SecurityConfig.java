@@ -1,6 +1,7 @@
-package com.demo.vdt.config;
+package com.demo.vdt.common.config;
 
 import com.demo.vdt.common.security.CustomJwtConverter;
+import com.demo.vdt.common.security.JwtAuthenticationEntryPoint;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     final CustomJwtConverter customJwtConverter;
+    final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     final String[] PUBLIC_ENDPOINTS = {"/",
             "/public/**",
             "/error",
@@ -30,8 +32,6 @@ public class SecurityConfig {
             "/js/**",
             "/api/v1/users",
             "/api/v1/users/**",
-            "/api/v1/bookings",
-            "/api/v1/bookings/**"
     };
 
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .jwt()
                 .jwtAuthenticationConverter(customJwtConverter);
 

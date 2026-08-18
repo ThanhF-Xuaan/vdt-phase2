@@ -8,6 +8,7 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(1015, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 
     USER_NOT_EXISTED(1001, "User doesn't exist!", HttpStatus.NOT_FOUND),
 
@@ -26,6 +27,13 @@ public enum ErrorCode {
     FIRST_NAME_NOT_BLANK(1012, "Tên không được để trống", HttpStatus.BAD_REQUEST),
     LAST_NAME_NOT_BLANK(1013, "Họ không được để trống", HttpStatus.BAD_REQUEST),
     DOB_NOT_BLANK(1014, "Ngày sinh không được để trống", HttpStatus.BAD_REQUEST),
+    ROLE_GROUP_EXISTED(1015, "Role group code already exists", HttpStatus.BAD_REQUEST),
+    ROLE_GROUP_NOT_EXISTED(1016, "Role group doesn't exist", HttpStatus.NOT_FOUND),
+    USER_ROLE_GROUP_NOT_EMPTY(1017, "You must assign at least one role group to the user", HttpStatus.BAD_REQUEST),
+    PERMISSION_EXISTED(1018, "Permission code already exists", HttpStatus.BAD_REQUEST),
+    PERMISSION_NOT_EXISTED(1019, "Permission doesn't exist", HttpStatus.NOT_FOUND),
+    CANNOT_DELETE_CORE_PERMISSION(1020, "Cannot delete core system permissions", HttpStatus.BAD_REQUEST),
+    INVALID_DOB(1021, "Invalid date or birth", HttpStatus.BAD_REQUEST),
     ;
     ErrorCode(int code, String message, HttpStatus statusCode){
         this.code = code;

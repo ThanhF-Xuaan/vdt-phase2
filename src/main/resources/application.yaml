@@ -20,3 +20,12 @@ spring:
     basename: messages
     encoding: UTF-8
     fallback-to-system-locale: false
+
+keycloak:
+  server-url: http://localhost:8080
+  realm: demo-realm
+  admin:
+    client-id: admin-cli
+    username: admin
+    password: admin
+  app-realm: demo-realm

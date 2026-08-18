@@ -1,4 +1,4 @@
-package com.demo.vdt.config;
+package com.demo.vdt.common.config;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -15,8 +15,8 @@ public class KeycloakConfig {
                 .realm("master")                     // 1. Trỏ về realm master (nơi chứa tài khoản admin tối cao)
                 .grantType(OAuth2Constants.PASSWORD)
                 .clientId("admin-cli")               // 2. Dùng client quản trị mặc định admin-cli có sẵn của Keycloak
-                .username("admin")                   // 3. Tên tài khoản admin lúc bạn setup Docker Keycloak
-                .password("admin")                   // 4. Mật khẩu tài khoản admin của bạn
+                .username("admin")                   // 3. Tên tài khoản admin
+                .password("admin")                   // 4. Mật khẩu tài khoản admin
                 .build();
     }
 }

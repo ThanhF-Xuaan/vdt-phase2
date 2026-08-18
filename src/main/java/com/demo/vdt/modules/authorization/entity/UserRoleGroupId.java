@@ -15,7 +15,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRoleGroupId implements Serializable {
 
-    private String userId;
+    Long userId;
 
-    private Long roleGroupId;
+    Integer roleGroupId;
 }
