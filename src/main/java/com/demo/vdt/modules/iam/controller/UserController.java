@@ -4,16 +4,18 @@ import com.demo.vdt.common.dto.ApiResponse;
 import com.demo.vdt.modules.iam.dto.request.UserCreationRequest;
 import com.demo.vdt.modules.iam.dto.request.UserUpdateRequest;
 import com.demo.vdt.modules.iam.dto.response.UserInfoResponse;
-import com.demo.vdt.modules.iam.entity.AppUser;
 import com.demo.vdt.modules.iam.service.AppUserService;
+import com.demo.vdt.modules.iam.service.UserExportService;
 import com.demo.vdt.modules.iam.service.UserSyncService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.List;
 public class UserController {
     AppUserService appUserService;
     UserSyncService userSyncService;
+    UserExportService userExportService;
 
     @GetMapping("/me")
     public ApiResponse<Object> me(Authentication authentication){
@@ -77,5 +80,20 @@ public class UserController {
     public ResponseEntity<String> triggerSyncManual() {
         userSyncService.syncUsersFromKeycloak();
         return ResponseEntity.ok("Đã đồng bộ thành công dữ liệu từ Keycloak!");
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<StreamingResponseBody> exportUsers(){
+        StreamingResponseBody responseBody = outputStream -> {
+            userExportService.exportUsersToExcel(outputStream);
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "Danh_sach_nguoi_dung.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(responseBody);
     }
 }

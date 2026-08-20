@@ -2,6 +2,7 @@ package com.demo.vdt.common.config;
 
 import com.demo.vdt.common.security.CustomJwtConverter;
 import com.demo.vdt.common.security.JwtAuthenticationEntryPoint;
+import com.demo.vdt.common.security.JwtBlacklistValidator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,7 +13,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -22,7 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SecurityConfig {
-
+    final JwtBlacklistValidator jwtBlacklistValidator;
     final CustomJwtConverter customJwtConverter;
     final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     final String[] PUBLIC_ENDPOINTS = {"/",
@@ -59,6 +64,14 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder(){
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+
+        OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefault();
+
+        OAuth2TokenValidator<Jwt> delegatingValidator = new DelegatingOAuth2TokenValidator<>(defaultValidators, jwtBlacklistValidator);
+
+        jwtDecoder.setJwtValidator(delegatingValidator);
+
+        return jwtDecoder;
     }
 }

@@ -1,6 +1,6 @@
 package com.demo.vdt.common.security;
 
-import com.demo.vdt.modules.authorization.service.AuthorizationService;
+import com.demo.vdt.modules.auth.service.AuthorizationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

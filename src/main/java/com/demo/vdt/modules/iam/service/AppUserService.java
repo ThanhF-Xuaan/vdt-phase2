@@ -3,7 +3,6 @@ package com.demo.vdt.modules.iam.service;
 import com.demo.vdt.modules.iam.dto.request.UserCreationRequest;
 import com.demo.vdt.modules.iam.dto.request.UserUpdateRequest;
 import com.demo.vdt.modules.iam.dto.response.UserInfoResponse;
-import com.demo.vdt.modules.iam.entity.AppUser;
 
 import java.util.List;
 

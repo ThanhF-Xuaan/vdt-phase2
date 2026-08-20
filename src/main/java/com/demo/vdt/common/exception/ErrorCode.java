@@ -34,6 +34,7 @@ public enum ErrorCode {
     PERMISSION_NOT_EXISTED(1019, "Permission doesn't exist", HttpStatus.NOT_FOUND),
     CANNOT_DELETE_CORE_PERMISSION(1020, "Cannot delete core system permissions", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1021, "Invalid date or birth", HttpStatus.BAD_REQUEST),
+    REFRESH_TOKEN_NOT_BLANK(1022, "Refresh token is required", HttpStatus.BAD_REQUEST),
     ;
     ErrorCode(int code, String message, HttpStatus statusCode){
         this.code = code;
